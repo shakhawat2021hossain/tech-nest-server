@@ -5,6 +5,12 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken")
 const port = process.env.PORT || 5000;
 
+
+app.use(cors())
+app.use(express.json())
+
+
+
 function createToken(user) {
   const token = jwt.sign(
     { email: user.email },
@@ -13,9 +19,6 @@ function createToken(user) {
   );
   return token;
 }
-
-app.use(cors())
-app.use(express.json())
 
 app.get('/', (req, res) => {
   res.send("hello server")
@@ -44,7 +47,7 @@ const dbConnect = async () => {
 }
 dbConnect()
 
-const users = client.db('userDB').collection('users')
+const users = client.db('usersDB').collection('users')
 const laptops = client.db('productsDB').collection('laptops')
 
 
