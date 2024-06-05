@@ -33,107 +33,112 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+const dbConnect = async () => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+      client.connect();
+      console.log("Database Connected Successfully✅");
 
-    const laptops = client.db("productsDB").collection("laptops");
-    //products
-    app.post('/laptops', async (req, res) => {
-      const laptop = req.body;
-
-      const result = await laptops.insertOne(laptop);
-      res.send(result)
-    })
-
-    app.get('/laptops', async (req, res) => {
-      const laptopsData = laptops.find()
-      const result = await laptopsData.toArray()
-      res.send(result)
-    })
-
-    app.get('/laptops/:id', async (req, res) => {
-      const id = req.params.id
-      // console.log(id);
-      const data = await laptops.findOne({
-        _id: new ObjectId(id)
-      })
-      res.send(data)
-    })
-
-    app.patch("/laptops/:id", async (req, res) => {
-      const id = req.params.id
-      const updatedData = req.body;
-      const data = await laptops.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: updatedData }
-      )
-      res.send(data)
-      // console.log(data);
-
-    })
-
-    app.delete("/laptops/:id", async (req, res) => {
-      const id = req.params.id;
-      const data = await laptops.deleteOne(
-        { _id: new ObjectId(id) }
-      )
-      res.send(data)
-      console.log(data);
-    })
-
-    //users
-    const users = client.db("usersDB").collection("users");
-    app.post('/users', async (req, res) => {
-      const user = req.body;
-      const token = createToken(user);
-
-      const isExist = await users.findOne({ email: user?.email })
-      if (isExist?._id) {
-        return res.send({
-          status: "success",
-          message: "login success",
-          token
-        });
-      }
-      await users.insertOne(user);
-      res.send(token)
-    })
-
-    
-    app.get('/users/get/:id', async (req, res) => {
-      const id = req.params.id
-      // console.log(id);
-      const data = await users.findOne({ _id: new ObjectId(id) })
-      res.send(data)
-    })
-    app.patch("/users/get/:id", async (req, res) => {
-      const id = req.params.id
-      const updatedData = req.body;
-      const data = await users.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: updatedData }
-      )
-      res.send(data)
-      console.log(data);
-
-    })
-
-    app.get('/users/:email', async (req, res) => {
-      const email = req.params.email
-      // console.log(email);
-      const data = await users.findOne({ email })
-      res.send(data)
-    })
-
-
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-
+  } catch (error) {
+      console.log(error.name, error.message);
   }
 }
-run().catch(console.dir);
+dbConnect()
+
+const users = client.db('userDB').collection('users')
+const laptops = client.db('productsDB').collection('laptops')
+
+
+
+//products
+app.post('/laptops', async (req, res) => {
+  const laptop = req.body;
+
+  const result = await laptops.insertOne(laptop);
+  res.send(result)
+})
+
+app.get('/laptops', async (req, res) => {
+  const laptopsData = laptops.find()
+  const result = await laptopsData.toArray()
+  res.send(result)
+})
+
+app.get('/laptops/:id', async (req, res) => {
+  const id = req.params.id
+  // console.log(id);
+  const data = await laptops.findOne({
+    _id: new ObjectId(id)
+  })
+  res.send(data)
+})
+
+app.patch("/laptops/:id", async (req, res) => {
+  const id = req.params.id
+  const updatedData = req.body;
+  const data = await laptops.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedData }
+  )
+  res.send(data)
+  // console.log(data);
+
+})
+
+app.delete("/laptops/:id", async (req, res) => {
+  const id = req.params.id;
+  const data = await laptops.deleteOne(
+    { _id: new ObjectId(id) }
+  )
+  res.send(data)
+  console.log(data);
+})
+
+//users
+// const users = client.db("usersDB").collection("users");
+app.post('/users', async (req, res) => {
+  const user = req.body;
+  const token = createToken(user);
+
+  const isExist = await users.findOne({ email: user?.email })
+  if (isExist?._id) {
+    return res.send({
+      status: "success",
+      message: "login success",
+      token
+    });
+  }
+  await users.insertOne(user);
+  res.send(token)
+})
+
+
+app.get('/users/get/:id', async (req, res) => {
+  const id = req.params.id
+  // console.log(id);
+  const data = await users.findOne({ _id: new ObjectId(id) })
+  res.send(data)
+})
+app.patch("/users/get/:id", async (req, res) => {
+  const id = req.params.id
+  const updatedData = req.body;
+  const data = await users.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedData }
+  )
+  res.send(data)
+  console.log(data);
+
+})
+
+app.get('/users/:email', async (req, res) => {
+  const email = req.params.email
+  // console.log(email);
+  const data = await users.findOne({ email })
+  res.send(data)
+})
+
+
+console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
 app.listen(port, () => {
